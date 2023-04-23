@@ -1,0 +1,9 @@
+{
+  "name": "need",
+  "type": "IMG",
+  "imageCount": 1,
+  "needProcess": [-1, -2],
+  "pos": [
+    [327,232,115,115]
+  ]
+}

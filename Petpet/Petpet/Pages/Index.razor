@@ -1,0 +1,68 @@
+﻿@inject IMessageService _message
+@inject INotificationService _notice
+@inject IConfiguration Configuration
+@inject Microsoft.Extensions.Options.IOptions<Utils.MyOptions> _myOptions
+@{
+    var _options = _myOptions.Value;
+    maxSize = _options.MaxSize;
+}
+
+@page "/"
+
+<PageTitle>PetPet生成器</PageTitle>
+
+<div>
+    <Spin Spinning=loading>
+        <Card Style="width: 400px">
+            <TitleTemplate>
+                <Switch @bind-Checked="IsQQ" CheckedChildren=" QQ头像" UnCheckedChildren="本地图片" />
+            </TitleTemplate>
+            <Extra>
+                <SimpleSelect Style="width:120px;" @bind-Value="name" DefaultValue="petpet">
+                    <SelectOptions>
+                        @foreach (var (k, v) in _options.Petpets)
+                        {
+                            <SimpleSelectOption Value="@v" Label="@k"></SimpleSelectOption>
+                        }
+                    </SelectOptions>
+                </SimpleSelect>
+            </Extra>
+            <Body>
+                @if (string.IsNullOrWhiteSpace(imgDataURL))
+                {
+                    <p>假设这里有一张图</p>
+                }
+                else
+                {
+                    <Image Width="300px" Src="@imgDataURL" Preview="false" />
+                }
+            </Body>
+            <ActionTemplate>
+                @if (IsQQ)
+                {
+                    <CardAction Style="width: 200px">
+                        <AntDesign.Input @bind-Value="@qqid">
+                            <Prefix>
+                                <Icon Type="qq" Theme="outline" />
+                            </Prefix>
+                        </AntDesign.Input>
+                    </CardAction>
+                    <CardAction Style="width: 200px"><Button Type="@ButtonType.Primary" Icon="@IconType.Outline.FundView" OnClick="@GenerateImageAsync">生成</Button></CardAction>
+                }
+                else
+                {
+                    <CardAction Style="width: 200px">
+                        <InputFile id="fileInput" OnChange="UploadFiles" hidden />
+                        <Upload Name="files" Style="width: 200px">
+                            <label class="ant-btn" for="fileInput">
+                                <Icon Type="upload" />
+                                Click to Upload
+                            </label>
+                        </Upload>
+                    </CardAction>
+                    <CardAction Style="width: 200px"><Button Type="@ButtonType.Primary" Icon="@IconType.Outline.FundView" OnClick="@GenerateImageAsync">生成</Button></CardAction>
+                }
+            </ActionTemplate>
+        </Card>
+    </Spin>
+</div>

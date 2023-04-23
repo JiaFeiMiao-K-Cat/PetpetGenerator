@@ -1,0 +1,9 @@
+{
+  "name": "dont_touch",
+  "type": "IMG",
+  "imageCount": 1,
+  "needProcess": [-1, -2],
+  "pos": [
+    [23,231,170,170]
+  ]
+}

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>C:\Users\xuzhe\source\repos\Petpet\Petpet\bin\Release\net7.0\publish\</_PublishTargetUrl>
+    <History>True|2023-04-23T07:57:42.1214938Z;True|2023-04-23T15:54:08.6116265+08:00;True|2023-04-23T15:50:42.0956210+08:00;True|2023-04-23T15:48:48.4867510+08:00;True|2023-04-23T15:47:31.4939662+08:00;True|2023-04-23T15:37:57.4878220+08:00;True|2023-04-23T15:17:37.4634480+08:00;False|2023-04-23T15:17:20.5187044+08:00;False|2023-04-23T15:17:11.4795145+08:00;True|2023-04-23T15:15:07.7331521+08:00;True|2023-04-23T15:13:18.0839602+08:00;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>
