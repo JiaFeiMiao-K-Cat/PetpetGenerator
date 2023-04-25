@@ -99,25 +99,7 @@ namespace Petpet.Pages
                 imageData = await Utils.Petpet.MakePetpet(localImageData, $"{_myOptions.Value.BasePath}/{name}");
             }
             string imreBase64Data = Convert.ToBase64String(imageData);
-            imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
-            loading = false;
-            InvokeAsync(StateHasChanged);
-        }
-
-        private async void DownloadImageAsync()
-        {
-            loading = true;
-            byte[] byteData;
-            if (IsQQ)
-            {
-                byteData = await Utils.Petpet.MakePetpet(qqid, $"{_myOptions.Value.BasePath}/{name}");
-            }
-            else
-            {
-                byteData = await Utils.Petpet.MakePetpet(localImageData, $"{_myOptions.Value.BasePath}/{name}");
-            }
-            string imreBase64Data = Convert.ToBase64String(byteData);
-            imgDataURL = string.Format("data:image/png;base64,{0}", imreBase64Data);
+            imgDataURL = string.Format("data:image/gif;base64,{0}", imreBase64Data);
             loading = false;
             InvokeAsync(StateHasChanged);
         }
