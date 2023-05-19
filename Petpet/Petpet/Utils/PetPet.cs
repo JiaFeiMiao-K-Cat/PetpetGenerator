@@ -235,9 +235,7 @@ namespace Petpet.Utils
                         break;
                     }
             }
-            Console.WriteLine(avatar.Size);
             var matrix = ImageTransform.CalcuteTransformMatrix(avatar.Size, leftTop, rightTop, rightBottom, leftBottom);
-            Console.WriteLine(matrix);
             avatar.Mutate(e => e.Transform(new ProjectiveTransformBuilder().AppendMatrix(matrix)));
             Image background = Image.Load(Path.Combine(BaseDirectory, $"{index}.png"));
             background.Mutate(e => e.DrawImage(avatar, new GraphicsOptions
