@@ -1,0 +1,9 @@
+{
+  "name": "cast",
+  "type": "EXTENDED_IMG",
+  "imageCount": 1,
+  "needProcess": [0,0],
+  "pos": [
+    [0, 1, -20, 240, 91, 145, 185, 256, 74, 350]
+  ]
+}

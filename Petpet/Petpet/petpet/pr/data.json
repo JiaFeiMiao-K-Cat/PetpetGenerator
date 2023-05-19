@@ -1,0 +1,9 @@
+{
+  "name": "pr",
+  "type": "EXTENDED_IMG",
+  "imageCount": 1,
+  "needProcess": [0,0],
+  "pos": [
+    [0, 1, 56, 303, 368, 278, 417, 514, 120, 632]
+  ]
+}
