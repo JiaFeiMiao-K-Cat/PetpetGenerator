@@ -34,6 +34,14 @@ namespace Petpet.Utils
                     {
                         return await MakeIMG(await QQHelper.GetAvatar(qqid), baseDirectory, Settings!);
                     }
+                case "EXTENDED_IMG":
+                    {
+                        return await MakeExtendedIMG(await QQHelper.GetAvatar(qqid), baseDirectory, Settings!);
+                    }
+                case "EXTENDED_GIF":
+                    {
+                        return await MakeExtendedGIF(await QQHelper.GetAvatar(qqid), baseDirectory, Settings!);
+                    }
                 default:
                     {
                         throw new ArgumentOutOfRangeException();
@@ -141,24 +149,102 @@ namespace Petpet.Utils
             }
             return null;
         }
-        public static async Task<string> MakeExtendedIMG(string qqid, string baseDirectory, PetpetSettings Settings)
+        public static async Task<byte[]?> MakeExtendedIMG(byte[] avatar, string baseDirectory, PetpetSettings settings)
         {
-            var saveDirectory = Path.Combine(TempDirectory, $"{Settings.name}_{qqid}.png");
-            var avatarImage = await GetAvatar(qqid);
-            using var image = Image.Load(avatarImage);
+            using var image = Image.Load(avatar);
             if (image != null)
             {
-                var result = ProcessExtendedPetpetImage(image, Settings.pos[0][0], Settings.pos[0][1],
-                    new PointF(Settings.pos[0][2], Settings.pos[0][3]),
-                    new PointF(Settings.pos[0][4], Settings.pos[0][5]),
-                    new PointF(Settings.pos[0][6], Settings.pos[0][7]),
-                    new PointF(Settings.pos[0][8], Settings.pos[0][9]),
+                var result = ProcessExtendedPetpetImage(image, settings.pos[0][0], settings.pos[0][1],
+                    new PointF(settings.pos[0][2], settings.pos[0][3]),
+                    new PointF(settings.pos[0][4], settings.pos[0][5]),
+                    new PointF(settings.pos[0][6], settings.pos[0][7]),
+                    new PointF(settings.pos[0][8], settings.pos[0][9]),
                     baseDirectory
                 );
-                using var fs = File.Create(saveDirectory);
-                result.SaveAsPng(fs);
+                using var mem = new MemoryStream();
+                await result.SaveAsPngAsync(mem);
+                return mem.ToArray();
             }
-            return saveDirectory.Replace('\\', '/');
+            return null;
+        }
+
+        public static async Task<byte[]?> MakeExtendedGIF(byte[] avatar, string baseDirectory, PetpetSettings settings)
+        {
+            using var image = Image.Load(avatar);
+            if (image != null)
+            {
+                var images = new List<Image>();
+                for (int i = 0; i < settings.imageCount; i++)
+                {
+                    images.Add(Image.Load(Path.Combine(baseDirectory, $"{i}.png")));
+                }
+                foreach (var pos in settings.pos)
+                {
+                    var index = pos[0];
+                    images[index] = ProcessExtendedPetpetImage(image, index, pos[1],
+                        new PointF(pos[2], pos[3]),
+                        new PointF(pos[4], pos[5]),
+                        new PointF(pos[6], pos[7]),
+                        new PointF(pos[8], pos[9]),
+                        baseDirectory
+                    );
+                }
+                using (var gif = new Image<Rgba32>(images[0].Width, images[0].Height))
+                {
+                    gif.Metadata.GetGifMetadata().RepeatCount = 0;
+                    GifEncoder encoder = new GifEncoder()
+                    {
+                        Quantizer = new OctreeQuantizer(new QuantizerOptions
+                        {
+                            Dither = null,
+                            DitherScale = 0,
+                            MaxColors = 256
+                        })
+                    }; // 消除petpet出现的杂点
+                    for (int i = 0; i < images.Count; i++)
+                    {
+                        var frame = images[i].Frames[0];
+                        frame.Metadata.GetGifMetadata().DisposalMethod = GifDisposalMethod.RestoreToBackground; // 无拖影
+                        gif.Frames.InsertFrame(i, frame);
+                    }
+                    gif.Frames.RemoveFrame(gif.Frames.Count - 1);
+                    using var mem = new MemoryStream();
+                    await gif.SaveAsGifAsync(mem, encoder);
+                    return mem.ToArray();
+                }
+            }
+            return null;
+        }
+
+        private static Image ProcessExtendedPetpetImage(Image avatarImage, int index, int layoutPriority,
+            PointF leftTop, PointF rightTop, PointF rightBottom, PointF leftBottom,
+            string BaseDirectory)
+        {
+            Image avatar = avatarImage.CloneAs<Rgba32>();
+            PixelAlphaCompositionMode mode = PixelAlphaCompositionMode.SrcOver;
+            switch (layoutPriority)
+            {
+                case 1:
+                    {
+                        mode = PixelAlphaCompositionMode.DestOver;
+                        break;
+
+                    }
+                default:
+                    {
+                        break;
+                    }
+            }
+            Console.WriteLine(avatar.Size);
+            var matrix = ImageTransform.CalcuteTransformMatrix(avatar.Size, leftTop, rightTop, rightBottom, leftBottom);
+            Console.WriteLine(matrix);
+            avatar.Mutate(e => e.Transform(new ProjectiveTransformBuilder().AppendMatrix(matrix)));
+            Image background = Image.Load(Path.Combine(BaseDirectory, $"{index}.png"));
+            background.Mutate(e => e.DrawImage(avatar, new GraphicsOptions
+            {
+                AlphaCompositionMode = mode
+            }));
+            return background;
         }
         private static Image ProcessPetPetImage(Image avatarImage, int index, int x, int y, int width, int height, string baseDirectory, 
             PixelAlphaCompositionMode alphaCompositionMode = PixelAlphaCompositionMode.DestOver)
