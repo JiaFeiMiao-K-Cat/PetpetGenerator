@@ -55,6 +55,14 @@ namespace Petpet.Utils
                     {
                         return await MakeIMG(avatar, baseDirectory, Settings!);
                     }
+                case "EXTENDED_IMG":
+                    {
+                        return await MakeExtendedIMG(avatar, baseDirectory, Settings!);
+                    }
+                case "EXTENDED_GIF":
+                    {
+                        return await MakeExtendedGIF(avatar, baseDirectory, Settings!);
+                    }
                 default:
                     {
                         throw new ArgumentOutOfRangeException();
@@ -132,6 +140,25 @@ namespace Petpet.Utils
                 return mem.ToArray();
             }
             return null;
+        }
+        public static async Task<string> MakeExtendedIMG(string qqid, string baseDirectory, PetpetSettings Settings)
+        {
+            var saveDirectory = Path.Combine(TempDirectory, $"{Settings.name}_{qqid}.png");
+            var avatarImage = await GetAvatar(qqid);
+            using var image = Image.Load(avatarImage);
+            if (image != null)
+            {
+                var result = ProcessExtendedPetpetImage(image, Settings.pos[0][0], Settings.pos[0][1],
+                    new PointF(Settings.pos[0][2], Settings.pos[0][3]),
+                    new PointF(Settings.pos[0][4], Settings.pos[0][5]),
+                    new PointF(Settings.pos[0][6], Settings.pos[0][7]),
+                    new PointF(Settings.pos[0][8], Settings.pos[0][9]),
+                    baseDirectory
+                );
+                using var fs = File.Create(saveDirectory);
+                result.SaveAsPng(fs);
+            }
+            return saveDirectory.Replace('\\', '/');
         }
         private static Image ProcessPetPetImage(Image avatarImage, int index, int x, int y, int width, int height, string baseDirectory, 
             PixelAlphaCompositionMode alphaCompositionMode = PixelAlphaCompositionMode.DestOver)
